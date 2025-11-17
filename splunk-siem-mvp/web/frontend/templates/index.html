@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Splunk SIEM - Security Dashboard</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <h2>🛡️ SPLUNK SIEM</h2>
+            <p>Security Analytics</p>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active" data-page="dashboard">
+                <span class="icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-page="logs">
+                <span class="icon">📝</span>
+                <span>Logs</span>
+            </a>
+            <a href="#" class="nav-item" data-page="alerts">
+                <span class="icon">🚨</span>
+                <span>Alerts</span>
+            </a>
+            <a href="#" class="nav-item" data-page="search">
+                <span class="icon">🔍</span>
+                <span>Search</span>
+            </a>
+            <a href="#" class="nav-item" data-page="analysis">
+                <span class="icon">📈</span>
+                <span>Analysis</span>
+            </a>
+            <a href="#" class="nav-item" data-page="settings">
+                <span class="icon">⚙️</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span>System Active</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 id="page-title">Security Dashboard</h1>
+                <p id="page-subtitle">Real-time threat monitoring and analysis</p>
+            </div>
+            <div class="header-right">
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Events</span>
+                        <span class="stat-value" id="total-events">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Alerts</span>
+                        <span class="stat-value alert" id="total-alerts">0</span>
+                    </div>
+                </div>
+                <button class="btn-icon" onclick="refreshData()">🔄</button>
+            </div>
+        </header>
+
+        <!-- Dashboard Page -->
+        <div id="page-dashboard" class="page active">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3>Total Events</h3>
+                        <div class="stat-number" id="dash-total-events">0</div>
+                        <div class="stat-label">Logs Processed</div>
+                    </div>
+                </div>
+
+                <div class="stat-card danger">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-info">
+                        <h3>Security Alerts</h3>
+                        <div class="stat-number" id="dash-total-alerts">0</div>
+                        <div class="stat-label">Threats Detected</div>
+                    </div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-info">
+                        <h3>High Priority</h3>
+                        <div class="stat-number" id="dash-high-alerts">0</div>
+                        <div class="stat-label">Requires Attention</div>
+                    </div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-icon">🔐</div>
+                    <div class="stat-info">
+                        <h3>Log Sources</h3>
+                        <div class="stat-number" id="dash-log-types">0</div>
+                        <div class="stat-label">Active Sources</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card">
+                    <h3>Log Distribution</h3>
+                    <div id="chart-log-distribution" class="chart-content"></div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Top Threats</h3>
+                    <div id="chart-top-threats" class="chart-content"></div>
+                </div>
+            </div>
+
+            <!-- Recent Alerts -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3>🚨 Recent Security Alerts</h3>
+                    <button class="btn-small" onclick="loadAlerts()">View All</button>
+                </div>
+                <div id="recent-alerts" class="alerts-list"></div>
+            </div>
+        </div>
+
+        <!-- Logs Page -->
+        <div id="page-logs" class="page">
+            <div class="page-controls">
+                <div class="controls-left">
+                    <select id="log-type-filter" class="form-select" onchange="filterLogs()">
+                        <option value="">All Types</option>
+                        <option value="dns">DNS</option>
+                        <option value="http">HTTP</option>
+                        <option value="ssh">SSH</option>
+                        <option value="ftp">FTP</option>
+                    </select>
+                    <input type="text" id="log-search" class="form-input" placeholder="Search logs..." oninput="searchLogs()">
+                </div>
+                <div class="controls-right">
+                    <button class="btn-primary" onclick="loadLogs()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="logs-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Type</th>
+                            <th>Event</th>
+                            <th>Source</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Alerts Page -->
+        <div id="page-alerts" class="page">
+            <div class="page-controls">
+                <div class="controls-left">
+                    <select id="alert-severity-filter" class="form-select" onchange="filterAlerts()">
+                        <option value="">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="controls-right">
+                    <button class="btn-primary" onclick="loadAlerts()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div id="alerts-container" class="alerts-grid"></div>
+        </div>
+
+        <!-- Search Page -->
+        <div id="page-search" class="page">
+            <div class="search-container">
+                <div class="search-box">
+                    <h3>SPL Query Console</h3>
+                    <textarea id="spl-query" class="query-input" placeholder="Enter SPL query... (e.g., search http | where status_code>400)"></textarea>
+                    <div class="search-actions">
+                        <button class="btn-primary" onclick="executeQuery()">▶ Execute Query</button>
+                        <button class="btn-secondary" onclick="showExampleQueries()">💡 Examples</button>
+                    </div>
+                </div>
+
+                <div id="query-results" class="query-results"></div>
+            </div>
+        </div>
+
+        <!-- Analysis Page -->
+        <div id="page-analysis" class="page">
+            <div class="analysis-controls">
+                <h3>Security Analysis</h3>
+                <p>Run comprehensive security analysis on collected logs</p>
+
+                <div class="button-group">
+                    <button class="btn-success" onclick="runAnalysis()">🔍 Run Analysis</button>
+                    <button class="btn-warning" onclick="clearAllData()">🗑️ Clear Data</button>
+                </div>
+            </div>
+
+            <div id="analysis-results" class="analysis-results"></div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="page-settings" class="page">
+            <div class="settings-section">
+                <h3>Log Generation</h3>
+                <div class="form-group">
+                    <label>Number of Logs per Type</label>
+                    <input type="number" id="log-count" class="form-input" value="100" min="10" max="10000">
+                </div>
+
+                <div class="form-group">
+                    <label>Log Types</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" checked value="dns"> DNS</label>
+                        <label><input type="checkbox" checked value="http"> HTTP</label>
+                        <label><input type="checkbox" checked value="ssh"> SSH</label>
+                        <label><input type="checkbox" checked value="ftp"> FTP</label>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="generateLogs()">🔄 Generate Logs</button>
+            </div>
+
+            <div class="settings-section">
+                <h3>System Status</h3>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span>Backend Status:</span>
+                        <span id="backend-status" class="badge badge-success">Online</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Last Update:</span>
+                        <span id="last-update">Never</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
