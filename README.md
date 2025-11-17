@@ -14,6 +14,7 @@ Um **MVP (Minimum Viable Product)** funcional de SIEM (Security Information and 
 - **SPL Query Engine**: Linguagem de consulta estilo Splunk (Search Processing Language)
 - **Dashboard Interativo**: Visualização HTML com gráficos e métricas em tempo real
 - **Alertas de Segurança**: Sistema de alertas com classificação por severidade
+- **🌐 Aplicação Web**: Interface web moderna com backend Flask e frontend responsivo (NOVO!)
 
 ## 📁 Estrutura do Projeto
 
@@ -32,13 +33,22 @@ splunk-siem-mvp/
 │   └── spl_query_engine.py
 ├── dashboard/          # Visualização
 │   └── generate_dashboard.py
+├── web/                # 🌐 APLICAÇÃO WEB (NOVO!)
+│   ├── backend/        # Backend Flask
+│   │   └── app.py
+│   ├── frontend/       # Frontend
+│   │   ├── templates/
+│   │   └── static/
+│   ├── requirements.txt
+│   ├── run_web_app.sh
+│   └── README.md
 ├── examples/           # Exemplos e casos de uso
 │   ├── example_queries.py
 │   └── use_cases.md
 ├── data/              # Dados JSON (gerado)
 ├── logs/              # Logs em formato texto (gerado)
 ├── reports/           # Relatórios e alertas (gerado)
-└── siem_main.py       # Aplicação principal
+└── siem_main.py       # Aplicação principal CLI
 ```
 
 ## 📸 Screenshots e Demonstrações
@@ -127,16 +137,41 @@ python siem_main.py --query "search ssh | where status=failed | top source_ip"
 python siem_main.py --query "search http | where path contains 'OR' | fields client_ip, path"
 ```
 
-## 📊 Dashboard
+## 🌐 Aplicação Web (RECOMENDADO!)
 
-Após executar com `--full` ou `--dashboard`, abra o dashboard no navegador:
+**NOVA FEATURE**: Interface web completa com backend Flask e frontend moderno!
+
+### Iniciar a Aplicação Web
 
 ```bash
-# O caminho será mostrado no output, algo como:
-file:///home/user/SplunkTest/splunk-siem-mvp/reports/dashboard.html
+cd splunk-siem-mvp/web
+./run_web_app.sh
 ```
 
-### Recursos do Dashboard:
+Acesse: **http://localhost:5000**
+
+### Funcionalidades da Web App
+
+- **Dashboard em Tempo Real**: Visualize estatísticas e gráficos atualizados
+- **Geração de Logs**: Interface para gerar logs diretamente no navegador
+- **Console SPL**: Execute queries interativas
+- **Navegação de Logs**: Browse, filtre e pesquise eventos
+- **Gerenciamento de Alertas**: Visualize alertas por severidade
+- **Análise de Segurança**: Execute análises completas via web
+- **Design Moderno**: Interface responsiva com dark mode
+
+📚 Ver documentação completa: [`web/README.md`](splunk-siem-mvp/web/README.md)
+
+## 📊 Dashboard HTML (Modo CLI)
+
+Alternativamente, use o dashboard HTML estático:
+
+```bash
+python siem_main.py --dashboard
+# Abre: reports/dashboard.html
+```
+
+### Recursos do Dashboard HTML:
 - 📈 Estatísticas gerais de eventos e alertas
 - 🚨 Alertas de segurança em tempo real com severidade
 - 📊 Distribuição de logs por tipo
