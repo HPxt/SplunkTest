@@ -67,6 +67,7 @@ function navigateTo(pageName) {
         alerts: ['Security Alerts', 'Review detected threats and anomalies'],
         search: ['SPL Search', 'Execute custom queries'],
         analysis: ['Security Analysis', 'Run comprehensive threat analysis'],
+        'incident-response': ['Incident Response', 'Block IPs, report incidents, and manage responses'],
         settings: ['Settings', 'Configure SIEM parameters']
     };
 
@@ -80,6 +81,10 @@ function navigateTo(pageName) {
         loadLogs();
     } else if (pageName === 'alerts') {
         loadAlerts();
+    } else if (pageName === 'incident-response') {
+        loadBlockedIPs();
+        loadIncidentReports();
+        loadResponseActions();
     } else if (pageName === 'dashboard') {
         loadStats();
     }
@@ -651,5 +656,460 @@ function refreshData() {
 window.addEventListener('error', function (e) {
     console.error('Global error:', e.error);
 });
+
+// ============================================================================
+// INCIDENT RESPONSE FUNCTIONS
+// ============================================================================
+
+async function blockIP() {
+    const ip = document.getElementById('block-ip-input').value.trim();
+    const reason = document.getElementById('block-reason-input').value.trim() || 'Suspicious activity detected';
+
+    if (!ip) {
+        showToast('Please enter an IP address', 'warning');
+        return;
+    }
+
+    showLoading();
+    const result = await apiCall('/block-ip', {
+        method: 'POST',
+        body: JSON.stringify({
+            ip: ip,
+            reason: reason,
+            blocked_by: 'User'
+        })
+    });
+    hideLoading();
+
+    if (result && result.success) {
+        showToast(result.message, 'success');
+        document.getElementById('block-ip-input').value = '';
+        document.getElementById('block-reason-input').value = '';
+        loadBlockedIPs();
+        loadResponseActions();
+        // Update stats to reflect removed alerts
+        loadStats();
+    } else {
+        showToast('Failed to block IP: ' + (result?.error || 'Unknown error'), 'error');
+    }
+}
+
+async function unblockIP(ip) {
+    if (!confirm(`Are you sure you want to unblock ${ip}?`)) {
+        return;
+    }
+
+    showLoading();
+    const result = await apiCall('/unblock-ip', {
+        method: 'POST',
+        body: JSON.stringify({
+            ip: ip,
+            unblocked_by: 'User'
+        })
+    });
+    hideLoading();
+
+    if (result && result.success) {
+        showToast(result.message, 'success');
+        loadBlockedIPs();
+        loadResponseActions();
+    } else {
+        showToast('Failed to unblock IP: ' + (result?.error || 'Unknown error'), 'error');
+    }
+}
+
+async function loadBlockedIPs() {
+    const statusFilter = document.getElementById('blocked-ip-filter')?.value || 'all';
+    const url = `/blocked-ips?status=${statusFilter}&include_history=true`;
+
+    showLoading();
+    const result = await apiCall(url);
+    hideLoading();
+
+    if (result && result.success) {
+        renderBlockedIPs(result.blocked_ips, result.active_blocks, result.history);
+    }
+}
+
+function renderBlockedIPs(blockedIPs, activeBlocks, history) {
+    const container = document.getElementById('blocked-ips-container');
+
+    if (!blockedIPs || Object.keys(blockedIPs).length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No blocked IPs</p>';
+        return;
+    }
+
+    let html = `<div style="margin-bottom: 15px;"><strong>Active Blocks: ${activeBlocks}</strong></div>`;
+    html += '<div class="blocked-ips-grid">';
+
+    for (const [ip, info] of Object.entries(blockedIPs)) {
+        const status = info.status || 'blocked';
+        const statusClass = status === 'blocked' ? 'danger' : 'success';
+        const timestamp = formatTimestamp(info.timestamp);
+        const historyItems = info.history || [];
+
+        html += `
+            <div class="blocked-ip-card ${statusClass}">
+                <div class="blocked-ip-header">
+                    <span class="ip-address">${ip}</span>
+                    <span class="badge badge-${statusClass}">${status}</span>
+                </div>
+                <div class="blocked-ip-info">
+                    <p><strong>Current Reason:</strong> ${info.reason || 'N/A'}</p>
+                    <p><strong>Blocked:</strong> ${timestamp}</p>
+                    <p><strong>By:</strong> ${info.blocked_by || 'System'}</p>
+                    ${info.source ? `<p><strong>Source:</strong> ${info.source}</p>` : ''}
+                    ${info.unblocked_at ? `<p><strong>Unblocked:</strong> ${formatTimestamp(info.unblocked_at)}</p>` : ''}
+                </div>
+                ${historyItems.length > 0 ? `
+                    <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; color: var(--primary-color); font-weight: bold;">📜 View History (${historyItems.length} entries)</summary>
+                        <div style="margin-top: 10px; padding: 10px; background: var(--bg-dark); border-radius: 5px; max-height: 200px; overflow-y: auto;">
+                            ${historyItems.map(h => `
+                                <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color);">
+                                    <p><strong>${h.action === 'blocked' ? '🚫 Blocked' : '✅ Unblocked'}</strong> - ${formatTimestamp(h.timestamp)}</p>
+                                    <p style="font-size: 0.9em; color: var(--text-secondary);"><strong>Reason:</strong> ${h.reason || 'N/A'}</p>
+                                    <p style="font-size: 0.85em; color: var(--text-secondary);">By: ${h.by || 'System'}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </details>
+                ` : ''}
+                <div class="blocked-ip-actions">
+                    ${status === 'blocked' ? `<button class="btn-small btn-success" onclick="unblockIP('${ip}')">Unblock</button>` : ''}
+                    <button class="btn-small btn-danger" onclick="quickBlockIP('${ip}')">Block Again</button>
+                </div>
+            </div>
+        `;
+    }
+
+    html += '</div>';
+
+    // Add global history section
+    if (history && history.length > 0) {
+        html += `
+            <div style="margin-top: 30px;">
+                <h3 style="margin-bottom: 15px;">📜 Complete Block History</h3>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>IP</th>
+                                <th>Action</th>
+                                <th>Reason</th>
+                                <th>By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${history.slice().reverse().map(h => `
+                                <tr>
+                                    <td>${formatTimestamp(h.timestamp)}</td>
+                                    <td><code>${h.ip}</code></td>
+                                    <td>${h.action === 'blocked' ? '🚫 Blocked' : '✅ Unblocked'}</td>
+                                    <td>${h.reason || 'N/A'}</td>
+                                    <td>${h.blocked_by || h.unblocked_by || 'System'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+async function quickBlockIP(ip) {
+    if (!confirm(`Block IP ${ip}?`)) {
+        return;
+    }
+
+    showLoading();
+    const result = await apiCall('/quick-block', {
+        method: 'POST',
+        body: JSON.stringify({
+            ip: ip,
+            source: 'manual'
+        })
+    });
+    hideLoading();
+
+    if (result && result.success) {
+        showToast(result.message, 'success');
+        loadBlockedIPs();
+        loadResponseActions();
+        // Update stats to reflect removed alerts
+        loadStats();
+    } else {
+        showToast('Failed to block IP: ' + (result?.error || 'Unknown error'), 'error');
+    }
+}
+
+function showReportModal() {
+    const modal = document.getElementById('report-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeReportModal() {
+    const modal = document.getElementById('report-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+        // Clear form
+        document.getElementById('modal-report-title').value = '';
+        document.getElementById('modal-report-description').value = '';
+        document.getElementById('modal-report-ips').value = '';
+    }
+}
+
+async function createIncidentReport() {
+    const title = document.getElementById('modal-report-title').value.trim();
+    const description = document.getElementById('modal-report-description').value.trim();
+    const severity = document.getElementById('modal-report-severity').value;
+    const ipsInput = document.getElementById('modal-report-ips').value.trim();
+
+    if (!title) {
+        showToast('Title is required', 'warning');
+        return;
+    }
+
+    const relatedIPs = ipsInput ? ipsInput.split(',').map(ip => ip.trim()).filter(ip => ip) : [];
+
+    showLoading();
+    const result = await apiCall('/report-incident', {
+        method: 'POST',
+        body: JSON.stringify({
+            title: title,
+            description: description,
+            severity: severity,
+            related_ips: relatedIPs,
+            reported_by: 'User'
+        })
+    });
+    hideLoading();
+
+    if (result && result.success) {
+        showToast('Incident report created successfully', 'success');
+        closeReportModal();
+        loadIncidentReports();
+        loadResponseActions();
+    } else {
+        showToast('Failed to create report: ' + (result?.error || 'Unknown error'), 'error');
+    }
+}
+
+async function loadIncidentReports() {
+    const statusFilter = document.getElementById('report-status-filter')?.value || 'all';
+    const severityFilter = document.getElementById('report-severity-filter')?.value || '';
+
+    let url = `/incident-reports?status=${statusFilter}`;
+    if (severityFilter) {
+        url += `&severity=${severityFilter}`;
+    }
+
+    showLoading();
+    const result = await apiCall(url);
+    hideLoading();
+
+    if (result && result.success) {
+        renderIncidentReports(result.reports, result.open);
+    }
+}
+
+function renderIncidentReports(reports, openCount) {
+    const container = document.getElementById('incident-reports-container');
+
+    if (!reports || reports.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No incident reports</p>';
+        return;
+    }
+
+    let html = `<div style="margin-bottom: 15px;"><strong>Open Reports: ${openCount}</strong></div>`;
+    html += '<div class="incident-reports-grid">';
+
+    reports.forEach(report => {
+        const severity = report.severity || 'medium';
+        const status = report.status || 'open';
+        const severityColors = {
+            critical: 'danger',
+            high: 'warning',
+            medium: 'info',
+            low: 'success'
+        };
+        const severityColor = severityColors[severity] || 'info';
+
+        html += `
+            <div class="incident-report-card ${severityColor}">
+                <div class="report-header">
+                    <div>
+                        <h4>#${report.id} - ${report.title}</h4>
+                        <span class="badge badge-${severityColor}">${severity}</span>
+                        <span class="badge">${status}</span>
+                    </div>
+                </div>
+                <div class="report-body">
+                    <p>${report.description || 'No description'}</p>
+                    ${report.related_ips && report.related_ips.length > 0 ?
+                `<p><strong>Related IPs:</strong> ${report.related_ips.join(', ')}</p>` : ''}
+                    <p><strong>Reported by:</strong> ${report.reported_by}</p>
+                    <p><strong>Created:</strong> ${formatTimestamp(report.created_at)}</p>
+                </div>
+                <div class="report-actions">
+                    <select class="form-select" onchange="updateIncidentStatus(${report.id}, this.value)" style="margin-right: 10px;">
+                        <option value="open" ${status === 'open' ? 'selected' : ''}>Open</option>
+                        <option value="investigating" ${status === 'investigating' ? 'selected' : ''}>Investigating</option>
+                        <option value="resolved" ${status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                        <option value="closed" ${status === 'closed' ? 'selected' : ''}>Closed</option>
+                    </select>
+                    <button class="btn-small btn-danger" onclick="quickBlockFromReport(${report.id})">Block Related IPs</button>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+async function updateIncidentStatus(reportId, status) {
+    showLoading();
+    const result = await apiCall('/update-incident', {
+        method: 'POST',
+        body: JSON.stringify({
+            id: reportId,
+            status: status
+        })
+    });
+    hideLoading();
+
+    if (result && result.success) {
+        showToast('Incident status updated', 'success');
+        loadIncidentReports();
+    } else {
+        showToast('Failed to update incident: ' + (result?.error || 'Unknown error'), 'error');
+    }
+}
+
+async function quickBlockFromReport(reportId) {
+    const reports = await apiCall('/incident-reports');
+    if (!reports || !reports.success) {
+        showToast('Failed to load report', 'error');
+        return;
+    }
+
+    const report = reports.reports.find(r => r.id === reportId);
+    if (!report || !report.related_ips || report.related_ips.length === 0) {
+        showToast('No IPs to block in this report', 'warning');
+        return;
+    }
+
+    if (!confirm(`Block ${report.related_ips.length} IP(s) from this report?`)) {
+        return;
+    }
+
+    let blocked = 0;
+    for (const ip of report.related_ips) {
+        const result = await apiCall('/quick-block', {
+            method: 'POST',
+            body: JSON.stringify({
+                ip: ip,
+                source: 'incident_report',
+                source_id: reportId
+            })
+        });
+        if (result && result.success) {
+            blocked++;
+        }
+    }
+
+    showToast(`Blocked ${blocked} IP(s) successfully`, 'success');
+    loadBlockedIPs();
+    loadResponseActions();
+    // Update stats to reflect removed alerts
+    loadStats();
+}
+
+async function loadResponseActions() {
+    const actionFilter = document.getElementById('action-filter')?.value || '';
+
+    let url = '/response-actions?limit=50';
+    if (actionFilter) {
+        url += `&action=${actionFilter}`;
+    }
+
+    showLoading();
+    const result = await apiCall(url);
+    hideLoading();
+
+    if (result && result.success) {
+        renderResponseActions(result.actions);
+    }
+}
+
+function renderResponseActions(actions) {
+    const container = document.getElementById('response-actions-container');
+
+    if (!actions || actions.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No response actions</p>';
+        return;
+    }
+
+    let html = '<div class="response-actions-table">';
+    html += '<table class="data-table"><thead><tr><th>Time</th><th>Action</th><th>Target</th><th>Reason</th><th>User</th></tr></thead><tbody>';
+
+    actions.forEach(action => {
+        const actionIcons = {
+            block_ip: '🚫',
+            unblock_ip: '✅',
+            quick_block: '⚡',
+            report_incident: '📝'
+        };
+        const icon = actionIcons[action.action] || '🔧';
+
+        html += `
+            <tr>
+                <td>${formatTimestamp(action.timestamp)}</td>
+                <td>${icon} ${action.action.replace(/_/g, ' ')}</td>
+                <td><code>${action.target}</code></td>
+                <td>${action.reason || 'N/A'}</td>
+                <td>${action.user || 'System'}</td>
+            </tr>
+        `;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+// Quick block from alerts page
+function quickBlockFromAlert(ip, alertId) {
+    if (!confirm(`Block IP ${ip}?`)) {
+        return;
+    }
+
+    showLoading();
+    apiCall('/quick-block', {
+        method: 'POST',
+        body: JSON.stringify({
+            ip: ip,
+            source: 'alert',
+            source_id: alertId
+        })
+    }).then(result => {
+        hideLoading();
+        if (result && result.success) {
+            showToast(`IP ${ip} blocked successfully`, 'success');
+            loadBlockedIPs();
+            loadResponseActions();
+            // Update stats to reflect removed alerts
+            loadStats();
+        } else {
+            showToast('Failed to block IP', 'error');
+        }
+    });
+}
 
 console.log('✅ Splunk SIEM app.js loaded successfully');

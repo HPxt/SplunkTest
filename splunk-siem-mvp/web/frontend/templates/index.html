@@ -35,6 +35,10 @@
                 <span class="icon">📈</span>
                 <span>Analysis</span>
             </a>
+            <a href="#" class="nav-item" data-page="incident-response">
+                <span class="icon">🛡️</span>
+                <span>Incident Response</span>
+            </a>
             <a href="#" class="nav-item" data-page="settings">
                 <span class="icon">⚙️</span>
                 <span>Settings</span>
@@ -219,6 +223,139 @@
             </div>
 
             <div id="analysis-results" class="analysis-results"></div>
+        </div>
+
+        <!-- Incident Response Page -->
+        <div id="page-incident-response" class="page">
+            <div class="incident-response-container">
+                <!-- Quick Actions -->
+                <div class="section-card">
+                    <h3>🚨 Quick Actions</h3>
+                    <div class="quick-actions-grid">
+                        <div class="action-card">
+                            <h4>Block IP Address</h4>
+                            <div class="form-group">
+                                <input type="text" id="block-ip-input" class="form-input" placeholder="192.168.1.100">
+                            </div>
+                            <div class="form-group">
+                                <textarea id="block-reason-input" class="form-input" placeholder="Reason for blocking..." rows="2"></textarea>
+                            </div>
+                            <button class="btn-danger" onclick="blockIP()">🚫 Block IP</button>
+                        </div>
+                        <div class="action-card">
+                            <h4>Report Incident</h4>
+                            <div class="form-group">
+                                <input type="text" id="report-title-input" class="form-input" placeholder="Incident Title">
+                            </div>
+                            <div class="form-group">
+                                <select id="report-severity-input" class="form-select">
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+                            <button class="btn-primary" onclick="showReportModal()">📝 Create Report</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blocked IPs Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3>🚫 Blocked IP Addresses</h3>
+                        <div class="header-actions">
+                            <select id="blocked-ip-filter" class="form-select" onchange="loadBlockedIPs()">
+                                <option value="all">All</option>
+                                <option value="blocked">Active Blocks</option>
+                                <option value="unblocked">Unblocked</option>
+                            </select>
+                            <button class="btn-small" onclick="loadBlockedIPs()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    <div id="blocked-ips-container" class="blocked-ips-list"></div>
+                </div>
+
+                <!-- Incident Reports Section -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3>📋 Incident Reports</h3>
+                        <div class="header-actions">
+                            <select id="report-status-filter" class="form-select" onchange="loadIncidentReports()">
+                                <option value="all">All Status</option>
+                                <option value="open">Open</option>
+                                <option value="investigating">Investigating</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                            <select id="report-severity-filter" class="form-select" onchange="loadIncidentReports()">
+                                <option value="">All Severities</option>
+                                <option value="critical">Critical</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                            <button class="btn-small" onclick="loadIncidentReports()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    <div id="incident-reports-container" class="incident-reports-list"></div>
+                </div>
+
+                <!-- Response Actions History -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3>📜 Response Actions History</h3>
+                        <div class="header-actions">
+                            <select id="action-filter" class="form-select" onchange="loadResponseActions()">
+                                <option value="">All Actions</option>
+                                <option value="block_ip">Block IP</option>
+                                <option value="unblock_ip">Unblock IP</option>
+                                <option value="quick_block">Quick Block</option>
+                                <option value="report_incident">Report Incident</option>
+                            </select>
+                            <button class="btn-small" onclick="loadResponseActions()">🔄 Refresh</button>
+                        </div>
+                    </div>
+                    <div id="response-actions-container" class="response-actions-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Modal -->
+        <div id="report-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📝 Create Incident Report</h3>
+                    <button class="btn-icon" onclick="closeReportModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="modal-report-title" class="form-input" placeholder="Brief description of the incident">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="modal-report-description" class="form-input" rows="4" placeholder="Detailed description of what happened..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Severity</label>
+                        <select id="modal-report-severity" class="form-select">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Related IPs (comma-separated)</label>
+                        <input type="text" id="modal-report-ips" class="form-input" placeholder="192.168.1.100, 10.0.0.5">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeReportModal()">Cancel</button>
+                    <button class="btn-primary" onclick="createIncidentReport()">Create Report</button>
+                </div>
+            </div>
         </div>
 
         <!-- Settings Page -->
