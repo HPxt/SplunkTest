@@ -28,25 +28,37 @@ web/
 
 ## 🚀 Início Rápido
 
-### Opção 1: Script de Inicialização (Recomendado)
+### Windows PowerShell (Recomendado)
 
-```bash
+```powershell
 cd splunk-siem-mvp/web
-chmod +x run_web_app.sh
-./run_web_app.sh
-```
 
-### Opção 2: Manual
+# Opção 1: Usar script PowerShell (atualiza PATH automaticamente)
+.\run_app.ps1
 
-```bash
-cd splunk-siem-mvp/web
+# Opção 2: Manual
+# Atualizar PATH (necessário em novas sessões)
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
 # Instalar dependências
-pip3 install -r requirements.txt
+python -m pip install -r requirements.txt
 
 # Iniciar servidor
-cd backend
-python3 app.py
+python backend\app.py
+```
+
+### Linux/Mac
+
+```bash
+cd splunk-siem-mvp/web
+
+# Opção 1: Script de Inicialização
+chmod +x run_web_app.sh
+./run_web_app.sh
+
+# Opção 2: Manual
+pip3 install -r requirements.txt
+python3 backend/app.py
 ```
 
 ### Acessar a Aplicação

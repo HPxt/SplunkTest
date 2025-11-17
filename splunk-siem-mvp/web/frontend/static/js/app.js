@@ -1,4 +1,5 @@
 // Splunk SIEM Web Application - Frontend JavaScript
+// Fixed and Complete Version
 
 const API_BASE = '/api';
 let currentData = {
@@ -8,26 +9,36 @@ let currentData = {
 };
 
 // Initialize app
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🚀 Splunk SIEM initializing...');
     initNavigation();
     checkHealth();
     loadStats();
     setInterval(loadStats, 30000); // Refresh every 30 seconds
+    console.log('✅ Splunk SIEM ready!');
 });
 
-// Navigation
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+
 function initNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
+    console.log(`Found ${navItems.length} navigation items`);
+
     navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             e.preventDefault();
             const pageName = this.dataset.page;
+            console.log(`Navigating to: ${pageName}`);
             navigateTo(pageName);
         });
     });
 }
 
 function navigateTo(pageName) {
+    console.log(`Loading page: ${pageName}`);
+
     // Update nav
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
@@ -40,7 +51,14 @@ function navigateTo(pageName) {
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
-    document.getElementById(`page-${pageName}`).classList.add('active');
+
+    const targetPage = document.getElementById(`page-${pageName}`);
+    if (targetPage) {
+        targetPage.classList.add('active');
+    } else {
+        console.error(`Page not found: page-${pageName}`);
+        return;
+    }
 
     // Update header
     const titles = {
@@ -58,13 +76,22 @@ function navigateTo(pageName) {
     }
 
     // Load page data
-    if (pageName === 'logs') loadLogs();
-    if (pageName === 'alerts') loadAlerts();
+    if (pageName === 'logs') {
+        loadLogs();
+    } else if (pageName === 'alerts') {
+        loadAlerts();
+    } else if (pageName === 'dashboard') {
+        loadStats();
+    }
 }
 
-// API Functions
+// ============================================================================
+// API FUNCTIONS
+// ============================================================================
+
 async function apiCall(endpoint, options = {}) {
     try {
+        console.log(`API Call: ${endpoint}`);
         const response = await fetch(`${API_BASE}${endpoint}`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -74,6 +101,7 @@ async function apiCall(endpoint, options = {}) {
         });
 
         const data = await response.json();
+        console.log(`API Response:`, data);
         return data;
     } catch (error) {
         console.error('API Error:', error);
@@ -84,12 +112,16 @@ async function apiCall(endpoint, options = {}) {
 
 async function checkHealth() {
     const result = await apiCall('/health');
+    const statusElement = document.getElementById('backend-status');
+
     if (result) {
-        document.getElementById('backend-status').textContent = 'Online';
-        document.getElementById('backend-status').className = 'badge badge-success';
+        statusElement.textContent = 'Online';
+        statusElement.className = 'badge badge-success';
+        console.log('✅ Backend is online');
     } else {
-        document.getElementById('backend-status').textContent = 'Offline';
-        document.getElementById('backend-status').className = 'badge badge-danger';
+        statusElement.textContent = 'Offline';
+        statusElement.className = 'badge badge-danger';
+        console.warn('⚠️ Backend is offline');
     }
 }
 
@@ -107,7 +139,13 @@ function updateHeaderStats(stats) {
     document.getElementById('total-alerts').textContent = stats.total_alerts || 0;
 }
 
+// ============================================================================
+// DASHBOARD
+// ============================================================================
+
 function updateDashboard(stats) {
+    console.log('Updating dashboard with stats:', stats);
+
     // Update stat cards
     document.getElementById('dash-total-events').textContent = (stats.total_logs || 0).toLocaleString();
     document.getElementById('dash-total-alerts').textContent = stats.total_alerts || 0;
@@ -124,10 +162,16 @@ function updateDashboard(stats) {
     loadRecentAlerts();
 }
 
-function renderLogDistribution(logsBy Type) {
+function renderLogDistribution(logsByType) {
     const container = document.getElementById('chart-log-distribution');
+
+    if (!container) {
+        console.error('Log distribution container not found');
+        return;
+    }
+
     if (Object.keys(logsByType).length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No data available</p>';
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No data available. Generate logs in Settings.</p>';
         return;
     }
 
@@ -154,8 +198,14 @@ function renderLogDistribution(logsBy Type) {
 
 function renderTopThreats(alertTypes) {
     const container = document.getElementById('chart-top-threats');
+
+    if (!container) {
+        console.error('Top threats container not found');
+        return;
+    }
+
     if (Object.keys(alertTypes).length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No threats detected</p>';
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No threats detected yet.</p>';
         return;
     }
 
@@ -196,8 +246,13 @@ async function loadRecentAlerts() {
 function renderRecentAlerts(alerts) {
     const container = document.getElementById('recent-alerts');
 
+    if (!container) {
+        console.error('Recent alerts container not found');
+        return;
+    }
+
     if (!alerts || alerts.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No alerts to display</p>';
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No alerts to display. Run analysis to detect threats.</p>';
         return;
     }
 
@@ -221,10 +276,13 @@ function renderRecentAlerts(alerts) {
     container.innerHTML = html;
 }
 
-// Log Functions
+// ============================================================================
+// LOGS PAGE
+// ============================================================================
+
 async function loadLogs() {
     showLoading();
-    const type = document.getElementById('log-type-filter').value;
+    const type = document.getElementById('log-type-filter')?.value || '';
     const url = type ? `/logs?type=${type}&limit=100` : '/logs?limit=100';
 
     const result = await apiCall(url);
@@ -233,14 +291,23 @@ async function loadLogs() {
     if (result && result.success) {
         currentData.logs = result.logs;
         renderLogsTable(result.logs);
+        showToast(`Loaded ${result.logs.length} logs`, 'success');
+    } else {
+        renderLogsTable([]);
+        showToast('No logs available. Generate logs in Settings.', 'warning');
     }
 }
 
 function renderLogsTable(logs) {
     const tbody = document.getElementById('logs-tbody');
 
+    if (!tbody) {
+        console.error('Logs table body not found');
+        return;
+    }
+
     if (!logs || logs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No logs available</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">No logs available. Go to Settings to generate logs.</td></tr>';
         return;
     }
 
@@ -293,9 +360,13 @@ function searchLogs() {
     });
 
     renderLogsTable(filtered);
+    showToast(`Found ${filtered.length} matching logs`, 'info');
 }
 
-// Alert Functions
+// ============================================================================
+// ALERTS PAGE
+// ============================================================================
+
 async function loadAlerts() {
     showLoading();
     const severity = document.getElementById('alert-severity-filter')?.value || '';
@@ -307,14 +378,23 @@ async function loadAlerts() {
     if (result && result.success) {
         currentData.alerts = result.alerts;
         renderAlertsGrid(result.alerts);
+        showToast(`Loaded ${result.alerts.length} alerts`, 'success');
+    } else {
+        renderAlertsGrid([]);
+        showToast('No alerts available. Run analysis first.', 'warning');
     }
 }
 
 function renderAlertsGrid(alerts) {
     const container = document.getElementById('alerts-container');
 
+    if (!container) {
+        console.error('Alerts container not found');
+        return;
+    }
+
     if (!alerts || alerts.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No alerts to display</p>';
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; padding: 20px;">No alerts to display. Go to Analysis page and run analysis.</p>';
         return;
     }
 
@@ -347,7 +427,10 @@ function filterAlerts() {
     loadAlerts();
 }
 
-// Query Functions
+// ============================================================================
+// SEARCH PAGE (SPL)
+// ============================================================================
+
 async function executeQuery() {
     const query = document.getElementById('spl-query').value.trim();
     if (!query) {
@@ -373,8 +456,13 @@ async function executeQuery() {
 function renderQueryResults(results, query) {
     const container = document.getElementById('query-results');
 
+    if (!container) {
+        console.error('Query results container not found');
+        return;
+    }
+
     if (!results) {
-        container.innerHTML = '<p style="color: var(--text-secondary);">No results</p>';
+        container.innerHTML = '<p style="color: var(--text-secondary); padding: 20px;">No results</p>';
         return;
     }
 
@@ -403,39 +491,15 @@ function showExampleQueries() {
         'search is_suspicious=true'
     ];
 
-    const exampleText = examples.join('\n');
-    document.getElementById('spl-query').value = exampleText;
+    const exampleText = examples.join('\n\n# Try these queries:\n\n');
+    document.getElementById('spl-query').value = '# Example Queries:\n\n' + exampleText;
     showToast('Example queries loaded', 'info');
 }
 
-// Settings Functions
-async function generateLogs() {
-    const count = parseInt(document.getElementById('log-count').value);
-    const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
-    const types = Array.from(checkboxes).map(cb => cb.value);
+// ============================================================================
+// ANALYSIS PAGE
+// ============================================================================
 
-    if (types.length === 0) {
-        showToast('Please select at least one log type', 'warning');
-        return;
-    }
-
-    showLoading();
-    const result = await apiCall('/generate-logs', {
-        method: 'POST',
-        body: JSON.stringify({ count, types })
-    });
-    hideLoading();
-
-    if (result && result.success) {
-        showToast(result.message, 'success');
-        document.getElementById('last-update').textContent = new Date().toLocaleString();
-        loadStats();
-    } else {
-        showToast('Failed to generate logs: ' + (result?.error || 'Unknown error'), 'error');
-    }
-}
-
-// Analysis Functions
 async function runAnalysis() {
     showLoading();
     const result = await apiCall('/analyze', {
@@ -446,14 +510,19 @@ async function runAnalysis() {
     if (result && result.success) {
         showToast(`Analysis complete: ${result.total_alerts} alerts detected`, 'success');
         renderAnalysisResults(result);
-        loadStats();
+        loadStats(); // Refresh stats
     } else {
-        showToast('Analysis failed: ' + (result?.error || 'Unknown error'), 'error');
+        showToast('Analysis failed: ' + (result?.error || 'No logs to analyze. Generate logs first.'), 'error');
     }
 }
 
 function renderAnalysisResults(result) {
     const container = document.getElementById('analysis-results');
+
+    if (!container) {
+        console.error('Analysis results container not found');
+        return;
+    }
 
     let html = `
         <h3>Analysis Results</h3>
@@ -489,12 +558,56 @@ async function clearAllData() {
         showToast('All data cleared', 'success');
         loadStats();
         document.getElementById('analysis-results').innerHTML = '';
+        currentData = { logs: [], alerts: [], stats: {} };
     } else {
         showToast('Failed to clear data', 'error');
     }
 }
 
-// Utility Functions
+// ============================================================================
+// SETTINGS PAGE
+// ============================================================================
+
+async function generateLogs() {
+    const count = parseInt(document.getElementById('log-count').value);
+    const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
+    const types = Array.from(checkboxes).map(cb => cb.value);
+
+    if (types.length === 0) {
+        showToast('Please select at least one log type', 'warning');
+        return;
+    }
+
+    if (count < 10 || count > 10000) {
+        showToast('Count must be between 10 and 10000', 'warning');
+        return;
+    }
+
+    showLoading();
+    const result = await apiCall('/generate-logs', {
+        method: 'POST',
+        body: JSON.stringify({ count, types })
+    });
+    hideLoading();
+
+    if (result && result.success) {
+        showToast(result.message, 'success');
+        document.getElementById('last-update').textContent = new Date().toLocaleString();
+        loadStats();
+
+        // Navigate to dashboard
+        setTimeout(() => {
+            navigateTo('dashboard');
+        }, 1000);
+    } else {
+        showToast('Failed to generate logs: ' + (result?.error || 'Unknown error'), 'error');
+    }
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
 function showLoading() {
     document.getElementById('loading-overlay').classList.remove('hidden');
 }
@@ -518,11 +631,25 @@ function showToast(message, type = 'info') {
 
 function formatTimestamp(timestamp) {
     if (!timestamp) return 'N/A';
-    const date = new Date(timestamp);
-    return date.toLocaleString();
+    try {
+        const date = new Date(timestamp);
+        return date.toLocaleString();
+    } catch (e) {
+        return timestamp;
+    }
 }
 
 function refreshData() {
     loadStats();
     showToast('Data refreshed', 'info');
 }
+
+// ============================================================================
+// GLOBAL ERROR HANDLER
+// ============================================================================
+
+window.addEventListener('error', function (e) {
+    console.error('Global error:', e.error);
+});
+
+console.log('✅ Splunk SIEM app.js loaded successfully');
