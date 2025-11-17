@@ -1,0 +1,11 @@
+# Splunk SIEM MVP - Requirements
+# Este projeto usa apenas Python stdlib, sem dependências externas!
+
+# Python Version
+# python>=3.8
+
+# Optional dependencies para features adicionais:
+# - matplotlib  # Para gráficos mais avançados
+# - pandas      # Para análise de dados
+# - flask       # Para API REST
+# - requests    # Para integração com APIs externas

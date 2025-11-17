@@ -1,0 +1,68 @@
+{
+  "siem_settings": {
+    "name": "Splunk SIEM MVP",
+    "version": "1.0.0",
+    "description": "Security Information and Event Management MVP"
+  },
+
+  "log_generation": {
+    "default_count": 1000,
+    "log_types": ["dns", "http", "ssh", "ftp"],
+    "suspicious_ratios": {
+      "dns": 0.08,
+      "http": 0.12,
+      "ssh": 0.15,
+      "ftp": 0.10
+    }
+  },
+
+  "anomaly_detection": {
+    "enabled": true,
+    "ssh_brute_force": {
+      "threshold": 5,
+      "time_window_minutes": 5
+    },
+    "http_scanner_detection": {
+      "enabled": true,
+      "suspicious_user_agents": [
+        "sqlmap", "nikto", "acunetix", "nmap",
+        "masscan", "metasploit", "burp"
+      ]
+    },
+    "dns_tunneling": {
+      "max_query_length": 50,
+      "max_subdomain_length": 30
+    }
+  },
+
+  "alerting": {
+    "severity_levels": ["low", "medium", "high", "critical"],
+    "alert_retention_days": 90,
+    "enable_email_alerts": false,
+    "enable_webhook_alerts": false
+  },
+
+  "dashboard": {
+    "refresh_interval_seconds": 60,
+    "max_recent_events": 20,
+    "max_alerts_display": 10
+  },
+
+  "data_retention": {
+    "raw_logs_days": 30,
+    "parsed_logs_days": 90,
+    "alerts_days": 365
+  },
+
+  "performance": {
+    "max_logs_per_query": 100000,
+    "query_timeout_seconds": 30,
+    "index_batch_size": 1000
+  },
+
+  "security": {
+    "enable_ip_blocking": false,
+    "blocked_ips": [],
+    "whitelist_ips": []
+  }
+}
