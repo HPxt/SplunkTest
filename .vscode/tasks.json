@@ -1,0 +1,71 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "🌐 Run Web App",
+            "type": "shell",
+            "command": "cd splunk-siem-mvp/web && ./run_web_app.sh",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "📦 Install Web Dependencies",
+            "type": "shell",
+            "command": "pip3 install -r requirements.txt",
+            "options": {
+                "cwd": "${workspaceFolder}/splunk-siem-mvp/web"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "🧪 Run SIEM Full Test",
+            "type": "shell",
+            "command": "python3 siem_main.py --full --count 100",
+            "options": {
+                "cwd": "${workspaceFolder}/splunk-siem-mvp"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "🗑️ Clear Generated Data",
+            "type": "shell",
+            "command": "rm -rf data/*.json logs/*.log reports/*.html reports/*.json",
+            "options": {
+                "cwd": "${workspaceFolder}/splunk-siem-mvp"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "🔧 Setup Virtual Environment",
+            "type": "shell",
+            "command": "python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt",
+            "options": {
+                "cwd": "${workspaceFolder}/splunk-siem-mvp/web"
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
+}
