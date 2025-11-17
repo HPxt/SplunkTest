@@ -83,14 +83,40 @@ Ver mais exemplos em: [`screenshots/`](screenshots/)
 
 ### Instalação
 
+#### Windows
+
+1. **Instalar Python 3.8+**:
+   ```powershell
+   # Usando winget (Windows 10/11)
+   winget install Python.Python.3.12
+   
+   # Ou baixe de: https://www.python.org/downloads/
+   # ⚠️ IMPORTANTE: Marque "Add Python to PATH" durante a instalação
+   ```
+
+2. **Clonar o repositório**:
+   ```powershell
+   git clone https://github.com/HPxt/SplunkTest.git
+   cd SplunkTest\splunk-siem-mvp
+   ```
+
+3. **Verificar Python**:
+   ```powershell
+   python --version  # Deve mostrar Python 3.8 ou superior
+   ```
+
+#### Linux/Mac
+
 ```bash
 # Clone o repositório
 git clone https://github.com/HPxt/SplunkTest.git
 cd SplunkTest/splunk-siem-mvp
 
-# Não há dependências externas! Python 3.8+ puro
-python --version  # Verifique que tem Python 3.8+
+# Verificar Python (geralmente já vem instalado)
+python3 --version  # Deve mostrar Python 3.8 ou superior
 ```
+
+**Nota**: O projeto CLI não requer dependências externas (Python 3.8+ puro). A aplicação web requer Flask (instalado automaticamente).
 
 ### Uso Básico
 
@@ -143,12 +169,43 @@ python siem_main.py --query "search http | where path contains 'OR' | fields cli
 
 ### Iniciar a Aplicação Web
 
+#### Windows PowerShell
+
+1. **Instalar Python** (se ainda não tiver):
+   ```powershell
+   winget install Python.Python.3.12
+   ```
+
+2. **Navegar até a pasta do projeto**:
+   ```powershell
+   cd SplunkTest\splunk-siem-mvp\web
+   ```
+
+3. **Instalar dependências**:
+   ```powershell
+   python -m pip install -r requirements.txt
+   ```
+
+4. **Rodar a aplicação**:
+   ```powershell
+   # Opção 1: Usar script PowerShell (recomendado)
+   .\run_app.ps1
+   
+   # Opção 2: Manual
+   python backend\app.py
+   ```
+
+5. **Acessar no navegador**: **http://localhost:5000**
+
+#### Linux/Mac
+
 ```bash
 cd splunk-siem-mvp/web
+chmod +x run_web_app.sh
 ./run_web_app.sh
 ```
 
-Acesse: **http://localhost:5000**
+**Acesse**: **http://localhost:5000**
 
 ### Funcionalidades da Web App
 
