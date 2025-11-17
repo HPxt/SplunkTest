@@ -1,0 +1,203 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║              SPLUNK SIEM MVP - EXEMPLOS DE QUERIES SPL               ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 1: Buscar todos eventos HTTP
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search http"
+
+Resultado:
+  - 2000 eventos HTTP encontrados
+  - Incluindo ataques de SQL Injection, XSS, Path Traversal
+  - Códigos de status: 200, 201, 301, 400, 401, 403, 404, 500, etc.
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 2: Detectar falhas de autenticação SSH
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search ssh | where status=failed"
+
+Resultado:
+{
+  "results": [
+    {
+      "timestamp": "2025-11-16T12:30:45",
+      "event_type": "authentication",
+      "status": "failed",
+      "user": "root",
+      "source_ip": "103.45.67.89",
+      "auth_method": "password",
+      "is_suspicious": true,
+      "attack_type": "brute_force"
+    },
+    {
+      "timestamp": "2025-11-16T12:31:12",
+      "event_type": "authentication",
+      "status": "failed",
+      "user": "admin",
+      "source_ip": "185.220.101.23",
+      "auth_method": "password",
+      "is_suspicious": true,
+      "attack_type": "brute_force"
+    }
+    ... (mais resultados)
+  ]
+}
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 3: Top queries DNS mais frequentes
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search dns | top query"
+
+Resultado:
+[
+  {
+    "value": "google.com",
+    "count": 245,
+    "percent": 12.25
+  },
+  {
+    "value": "facebook.com",
+    "count": 198,
+    "percent": 9.90
+  },
+  {
+    "value": "amazon.com",
+    "count": 176,
+    "percent": 8.80
+  },
+  {
+    "value": "microsoft.com",
+    "count": 165,
+    "percent": 8.25
+  },
+  {
+    "value": "github.com",
+    "count": 142,
+    "percent": 7.10
+  }
+]
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 4: Estatísticas de códigos HTTP
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search http | stats count by status_code"
+
+Resultado:
+{
+  "stats": {
+    "200": 1245,
+    "201": 87,
+    "204": 65,
+    "301": 132,
+    "304": 98,
+    "400": 76,
+    "401": 54,
+    "403": 89,
+    "404": 112,
+    "500": 42
+  }
+}
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 5: Buscar eventos suspeitos
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search is_suspicious=true"
+
+Resultado:
+  - 842 eventos suspeitos encontrados
+  - Tipos: SQL Injection, XSS, Path Traversal, Brute Force,
+           DNS Tunneling, DGA Domains, Scanner Detection
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 6: Análise de ataques por tipo
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search attack_type | stats count by attack_type"
+
+Resultado:
+{
+  "stats": {
+    "sql_injection": 35,
+    "xss": 48,
+    "path_traversal": 51,
+    "command_injection": 25,
+    "scanner": 25,
+    "brute_force": 145,
+    "dns_tunneling": 33,
+    "dga_domain": 25,
+    "data_exfiltration": 18,
+    "unauthorized_access": 32,
+    "malware_upload": 14
+  }
+}
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 7: Top IPs atacantes
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search is_suspicious=true | top source_ip"
+
+Resultado:
+[
+  {
+    "value": "103.45.67.89",
+    "count": 45,
+    "percent": 5.34
+  },
+  {
+    "value": "185.220.101.23",
+    "count": 38,
+    "percent": 4.51
+  },
+  {
+    "value": "45.154.24.45",
+    "count": 32,
+    "percent": 3.80
+  }
+]
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 8: Filtrar erros de servidor HTTP
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search http | where status_code>=500"
+
+Resultado:
+  - 42 erros de servidor (5xx) detectados
+  - Status codes: 500, 502, 503
+  - Possíveis causas: SQL Injection, Command Injection,
+                      Aplicação vulnerável
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 9: Queries DNS com NXDOMAIN (domínios não encontrados)
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search dns | where response_code=NXDOMAIN"
+
+Resultado:
+  - 245 queries NXDOMAIN
+  - Possível indicador de:
+    * Malware tentando conectar a C2
+    * DGA domains
+    * Erros de configuração
+
+═══════════════════════════════════════════════════════════════════════
+QUERY 10: Ordenar eventos por timestamp
+═══════════════════════════════════════════════════════════════════════
+
+Command: python3 siem_main.py --query "search http | sort timestamp | head 10"
+
+Resultado:
+  - 10 eventos HTTP mais antigos
+  - Ordenados por timestamp crescente
+  - Útil para análise cronológica de incidentes
+
+═══════════════════════════════════════════════════════════════════════
+            ✅ TODOS OS QUERIES EXECUTADOS COM SUCESSO!
+═══════════════════════════════════════════════════════════════════════

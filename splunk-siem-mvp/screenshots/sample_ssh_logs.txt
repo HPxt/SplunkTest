@@ -1,0 +1,30 @@
+2025-11-16T04:22:33.321608 sshd[2849]: session port_forward for developer from 192.168.1.31
+2025-11-16T04:23:33.317971 sshd[4491]: SUCCESS publickey for john from 192.168.1.15 port 51391
+2025-11-16T04:23:37.314320 sshd[6810]: SUCCESS password for admin from 192.168.1.13 port 41347
+2025-11-16T04:26:01.318242 sshd[7127]: SUCCESS password for backup from 192.168.1.12 port 60364
+2025-11-16T04:26:05.315659 sshd[5853]: SUCCESS publickey for developer from 192.168.1.24 port 48227
+2025-11-16T04:26:11.322979 sshd[9032]: session port_forward for backup from 192.168.1.36
+2025-11-16T04:26:41.315204 sshd[1296]: SUCCESS publickey for root from 192.168.1.27 port 54250
+2025-11-16T04:26:49.317839 sshd[3224]: SUCCESS publickey for admin from 192.168.1.17 port 47615
+2025-11-16T04:26:53.322091 sshd[5090]: session sftp for developer from 192.168.1.30
+2025-11-16T04:27:44.316575 sshd[2723]: SUCCESS publickey for admin from 192.168.1.23 port 53297
+2025-11-16T04:28:47.316230 sshd[1650]: SUCCESS password for admin from 192.168.1.17 port 61698
+2025-11-16T04:29:03.319790 sshd[1474]: FAILED password for oracle from 45.154.24.45 port 58921
+2025-11-16T04:29:10.321854 sshd[5380]: session disconnect for john from 192.168.1.30
+2025-11-16T04:30:05.319073 sshd[5083]: SUCCESS publickey for root from 192.168.1.40 port 59718
+2025-11-16T04:30:52.318296 sshd[7497]: SUCCESS publickey for ops from 192.168.1.15 port 43045
+2025-11-16T04:30:52.322205 sshd[3565]: session command for root from 192.168.1.46
+2025-11-16T04:31:19.320543 sshd[4929]: FAILED password for postgres from 122.194.229.59 port 40963
+2025-11-16T04:33:52.314863 sshd[7493]: SUCCESS publickey for backup from 192.168.1.36 port 43674
+2025-11-16T04:33:52.318761 sshd[6355]: SUCCESS password for root from 192.168.1.43 port 48867
+2025-11-16T04:33:53.320232 sshd[1752]: FAILED password for postgres from 91.219.237.229 port 58294
+2025-11-16T04:34:22.320225 sshd[6702]: FAILED password for test from 122.194.229.59 port 58164
+2025-11-16T04:35:16.319817 sshd[4124]: FAILED password for root from 45.154.24.45 port 42661
+2025-11-16T04:35:26.320235 sshd[1066]: FAILED password for backup from 192.168.1.32 port 42529
+2025-11-16T04:35:41.314348 sshd[7883]: SUCCESS publickey for root from 192.168.1.14 port 43637
+2025-11-16T04:38:23.322722 sshd[7453]: session command for ops from 192.168.1.48
+2025-11-16T04:38:55.322271 sshd[5359]: session port_forward for developer from 192.168.1.19
+2025-11-16T04:39:13.314803 sshd[7707]: SUCCESS publickey for backup from 192.168.1.31 port 45646
+2025-11-16T04:39:25.319089 sshd[5438]: SUCCESS publickey for developer from 192.168.1.46 port 59040
+2025-11-16T04:39:33.317352 sshd[4810]: SUCCESS password for backup from 192.168.1.11 port 64382
+2025-11-16T04:40:27.320206 sshd[4714]: FAILED password for ubuntu from 122.194.229.59 port 46278

@@ -1,0 +1,142 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                   SPLUNK SIEM MVP - DASHBOARD HTML                   ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+O dashboard HTML interativo gerado pelo sistema inclui:
+
+═══════════════════════════════════════════════════════════════════════
+📊 SEÇÕES DO DASHBOARD
+═══════════════════════════════════════════════════════════════════════
+
+1. CABEÇALHO
+   ┌────────────────────────────────────────────────────────────┐
+   │ 🛡️ Splunk SIEM Dashboard                                   │
+   │ Security Information and Event Management                  │
+   │ Generated: 2025-11-17 04:21:54                            │
+   └────────────────────────────────────────────────────────────┘
+
+2. CARDS DE ESTATÍSTICAS
+   ┌──────────────┬──────────────┬──────────────┬──────────────┐
+   │ Total Events │ Sec. Alerts  │ Critical     │ Log Sources  │
+   │   8,000      │     256      │     0        │      4       │
+   │ Logs processed│Threats detected│Requires attn│Active sources│
+   └──────────────┴──────────────┴──────────────┴──────────────┘
+
+3. ALERTAS DE SEGURANÇA RECENTES (Top 10)
+   ┌────────────────────────────────────────────────────────────┐
+   │ 🚨 Recent Security Alerts                                  │
+   ├────────────────────────────────────────────────────────────┤
+   │ [HIGH] Path Traversal                                      │
+   │ Path traversal attempt detected                            │
+   │ 2025-11-16T04:32:30                                       │
+   ├────────────────────────────────────────────────────────────┤
+   │ [HIGH] Path Traversal                                      │
+   │ Path traversal attempt detected                            │
+   │ 2025-11-16T04:37:50                                       │
+   ├────────────────────────────────────────────────────────────┤
+   │ [MEDIUM] XSS                                               │
+   │ Cross-Site Scripting (XSS) attempt detected               │
+   │ 2025-11-16T04:41:59                                       │
+   ├────────────────────────────────────────────────────────────┤
+   │ [HIGH] SQL Injection                                       │
+   │ SQL injection attempt detected in request path            │
+   │ 2025-11-16T05:15:23                                       │
+   └────────────────────────────────────────────────────────────┘
+
+4. GRÁFICO DE DISTRIBUIÇÃO DE LOGS
+   ┌────────────────────────────────────────────────────────────┐
+   │ 📊 Log Distribution by Type                                │
+   ├────────────────────────────────────────────────────────────┤
+   │ HTTP  ████████████████████████████████ 2,000 events       │
+   │ SSH   ████████████████████████████████ 2,000 events       │
+   │ DNS   ████████████████████████████████ 2,000 events       │
+   │ FTP   ████████████████████████████████ 2,000 events       │
+   └────────────────────────────────────────────────────────────┘
+
+5. TOP TIPOS DE AMEAÇAS
+   ┌────────────────────────────────────────────────────────────┐
+   │ ⚠️ Top Threat Types                                        │
+   ├────────────────────────────────────────────────────────────┤
+   │ Path Traversal      ██████████████████ 51 incidents       │
+   │ XSS                 ████████████████   48 incidents       │
+   │ SQL Injection       ████████████       35 incidents       │
+   │ DNS Tunneling       ███████████        33 incidents       │
+   │ Unauthorized Access ███████████        32 incidents       │
+   │ DGA Domain          ████████           25 incidents       │
+   │ Scanner Detected    ████████           25 incidents       │
+   └────────────────────────────────────────────────────────────┘
+
+6. EVENTOS RECENTES (Top 20)
+   ┌─────────────┬──────┬────────────────────────┬──────────────┐
+   │ Timestamp   │ Type │ Event Summary          │ Status       │
+   ├─────────────┼──────┼────────────────────────┼──────────────┤
+   │ 2025-11-16  │ HTTP │ GET /index.html - 200  │ ✅ Normal    │
+   │ 04:58:23    │      │                        │              │
+   ├─────────────┼──────┼────────────────────────┼──────────────┤
+   │ 2025-11-16  │ SSH  │ SSH failed - User:     │ 🔴 Suspicious│
+   │ 04:57:45    │      │ admin from 103.45.67.89│              │
+   ├─────────────┼──────┼────────────────────────┼──────────────┤
+   │ 2025-11-16  │ DNS  │ DNS Query:             │ ✅ Normal    │
+   │ 04:56:12    │      │ google.com - NOERROR   │              │
+   ├─────────────┼──────┼────────────────────────┼──────────────┤
+   │ 2025-11-16  │ FTP  │ FTP download - User:   │ ✅ Normal    │
+   │ 04:55:30    │      │ ftpuser                │              │
+   └─────────────┴──────┴────────────────────────┴──────────────┘
+
+═══════════════════════════════════════════════════════════════════════
+🎨 DESIGN E ESTILO
+═══════════════════════════════════════════════════════════════════════
+
+• Tema: Dark mode (fundo escuro, texto claro)
+• Cores:
+  - Primária: Gradiente roxo/azul (#667eea → #764ba2)
+  - Danger: Vermelho (#f56565)
+  - Warning: Laranja (#ed8936)
+  - Success: Verde (#48bb78)
+
+• Layout: Responsivo (Grid CSS)
+• Fontes: Segoe UI, Tahoma, sans-serif
+• Elementos: Cards, gráficos de barras, tabelas
+
+═══════════════════════════════════════════════════════════════════════
+🌐 COMO ACESSAR
+═══════════════════════════════════════════════════════════════════════
+
+1. Localização do arquivo:
+   splunk-siem-mvp/reports/dashboard.html
+
+2. Abrir no navegador:
+   - Firefox: firefox splunk-siem-mvp/reports/dashboard.html
+   - Chrome: google-chrome splunk-siem-mvp/reports/dashboard.html
+   - Ou duplo-clique no arquivo
+
+3. URL local:
+   file:///home/user/SplunkTest/splunk-siem-mvp/reports/dashboard.html
+
+═══════════════════════════════════════════════════════════════════════
+📊 DADOS EXIBIDOS
+═══════════════════════════════════════════════════════════════════════
+
+Total de eventos processados: 8,000
+Alertas de segurança: 256
+Breakdown de severidade:
+  - Critical: 0
+  - High: 158
+  - Medium: 98
+  - Low: 0
+
+Tipos de ameaças (Top 5):
+  1. Path Traversal (51)
+  2. XSS (48)
+  3. SQL Injection (35)
+  4. DNS Tunneling (33)
+  5. Unauthorized Access (32)
+
+═══════════════════════════════════════════════════════════════════════
+✅ DASHBOARD TOTALMENTE FUNCIONAL E INTERATIVO!
+═══════════════════════════════════════════════════════════════════════
+
+Para visualizar o dashboard real, execute:
+  python3 siem_main.py --full --count 2000
+
+E depois abra o arquivo dashboard.html gerado!

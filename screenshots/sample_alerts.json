@@ -1,0 +1,131 @@
+{
+  "total_alerts": 256,
+  "severity_breakdown": {
+    "high": 158,
+    "medium": 98
+  },
+  "alert_types": {
+    "path_traversal": 51,
+    "xss": 48,
+    "sql_injection": 35,
+    "dns_tunneling": 33,
+    "unauthorized_access": 32,
+    "dga_domain": 25,
+    "scanner_detected": 25,
+    "ftp_brute_force": 7
+  },
+  "sample_alerts": [
+    {
+      "timestamp": "2025-11-16T04:32:30",
+      "severity": "high",
+      "alert_type": "path_traversal",
+      "description": "Path traversal attempt detected",
+      "source_ip": "159.252.4.40",
+      "target_path": "/download?file=../../../../etc/shadow",
+      "indicators": {
+        "pattern": "../",
+        "target_file": "/etc/shadow"
+      }
+    },
+    {
+      "timestamp": "2025-11-16T05:15:23",
+      "severity": "high",
+      "alert_type": "sql_injection",
+      "description": "SQL injection attempt detected in request path",
+      "source_ip": "192.168.1.45",
+      "attack_path": "/login?user=admin' OR '1'='1",
+      "indicators": {
+        "sql_keywords": ["OR", "'1'='1'"],
+        "injection_type": "authentication_bypass"
+      }
+    },
+    {
+      "timestamp": "2025-11-16T06:22:11",
+      "severity": "medium",
+      "alert_type": "xss",
+      "description": "Cross-Site Scripting (XSS) attempt detected",
+      "source_ip": "118.39.68.45",
+      "payload": "<script>alert(document.cookie)</script>",
+      "indicators": {
+        "script_tag": true,
+        "javascript_function": "alert"
+      }
+    },
+    {
+      "timestamp": "2025-11-16T07:45:32",
+      "severity": "high",
+      "alert_type": "dns_tunneling",
+      "description": "Potential DNS tunneling detected",
+      "source_ip": "192.168.1.78",
+      "suspicious_query": "aHR0cDovL2V4YW1wbGUuY29tL2RhdGE.tunnel.example.com",
+      "indicators": {
+        "query_length": 65,
+        "subdomain_length": 42,
+        "entropy": "high"
+      }
+    },
+    {
+      "timestamp": "2025-11-16T08:30:15",
+      "severity": "medium",
+      "alert_type": "scanner_detected",
+      "description": "Security scanner or automated tool detected",
+      "source_ip": "185.156.73.54",
+      "user_agent": "sqlmap/1.0",
+      "indicators": {
+        "tool": "sqlmap",
+        "scan_type": "sql_injection_testing"
+      }
+    },
+    {
+      "timestamp": "2025-11-16T09:12:45",
+      "severity": "high",
+      "alert_type": "unauthorized_access",
+      "description": "Attempt to access sensitive file via FTP",
+      "source_ip": "192.168.1.125",
+      "user": "ftpuser",
+      "file_path": "/etc/passwd",
+      "indicators": {
+        "sensitive_file": true,
+        "access_type": "download"
+      }
+    },
+    {
+      "timestamp": "2025-11-16T10:55:20",
+      "severity": "medium",
+      "alert_type": "dga_domain",
+      "description": "Potential DGA-generated domain detected",
+      "source_ip": "192.168.1.92",
+      "suspicious_domain": "xqwmkpvnrltz.com",
+      "indicators": {
+        "consonant_clusters": ["xqw", "mkp", "vnr", "ltz"],
+        "entropy": "very_high",
+        "domain_age": "newly_registered"
+      }
+    },
+    {
+      "timestamp": "2025-11-16T11:30:00",
+      "severity": "high",
+      "alert_type": "ftp_brute_force",
+      "description": "Multiple failed FTP login attempts",
+      "source_ip": "45.142.212.61",
+      "failed_attempts": 12,
+      "time_window": "5 minutes",
+      "indicators": {
+        "attack_type": "credential_stuffing",
+        "targeted_users": ["admin", "root", "ftpuser"]
+      }
+    }
+  ],
+  "recommendations": [
+    "Block suspicious IPs immediately",
+    "Review and update WAF rules",
+    "Implement rate limiting for authentication endpoints",
+    "Enable two-factor authentication",
+    "Monitor DNS queries for unusual patterns",
+    "Update application input validation",
+    "Review file system permissions",
+    "Enable fail2ban or similar IPS",
+    "Conduct security awareness training",
+    "Patch vulnerable applications"
+  ]
+}

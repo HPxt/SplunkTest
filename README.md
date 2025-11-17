@@ -41,6 +41,34 @@ splunk-siem-mvp/
 └── siem_main.py       # Aplicação principal
 ```
 
+## 📸 Screenshots e Demonstrações
+
+### Execução do Pipeline Completo
+
+```
+    ███████╗██████╗ ██╗     ██╗   ██╗███╗   ██╗██╗  ██╗
+    ██╔════╝██╔══██╗██║     ██║   ██║████╗  ██║██║ ██╔╝
+    ███████╗██████╔╝██║     ██║   ██║██╔██╗ ██║█████╔╝
+    ╚════██║██╔═══╝ ██║     ██║   ██║██║╚██╗██║██╔═██╗
+    ███████║██║     ███████╗╚██████╔╝██║ ╚████║██║  ██╗
+
+✅ Total logs generated: 8,000
+✅ Analysis complete. Total alerts: 256
+📊 Severity breakdown: {'high': 158, 'medium': 98}
+🎯 TOP THREAT TYPES:
+   Path Traversal: 51
+   XSS: 48
+   SQL Injection: 35
+   DNS Tunneling: 33
+   Unauthorized Access: 32
+```
+
+Ver mais exemplos em: [`screenshots/`](screenshots/)
+- [Exemplo de Output Completo](screenshots/example_output.txt)
+- [Exemplos de Queries SPL](screenshots/query_examples.txt)
+- [Informações do Dashboard](screenshots/dashboard_info.txt)
+- [Alertas de Segurança](screenshots/sample_alerts.json)
+
 ## 🚀 Quick Start
 
 ### Instalação

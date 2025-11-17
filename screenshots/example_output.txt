@@ -1,0 +1,85 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                  SPLUNK SIEM MVP - EXEMPLO DE OUTPUT                 ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+    ███████╗██████╗ ██╗     ██╗   ██╗███╗   ██╗██╗  ██╗
+    ██╔════╝██╔══██╗██║     ██║   ██║████╗  ██║██║ ██╔╝
+    ███████╗██████╔╝██║     ██║   ██║██╔██╗ ██║█████╔╝
+    ╚════██║██╔═══╝ ██║     ██║   ██║██║╚██╗██║██╔═██╗
+    ███████║██║     ███████╗╚██████╔╝██║ ╚████║██║  ██╗
+    ╚══════╝╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝
+
+           Security Information and Event Management
+                        MVP Version 1.0
+
+═══════════════════════════════════════════════════════════════════════
+STEP 1: GENERATING LOGS
+═══════════════════════════════════════════════════════════════════════
+
+[1/4] Generating DNS logs...
+  ✓ Generated 2000 DNS logs
+
+[2/4] Generating HTTP logs...
+  ✓ Generated 2000 HTTP logs
+
+[3/4] Generating SSH logs...
+  ✓ Generated 2000 SSH logs
+
+[4/4] Generating FTP logs...
+  ✓ Generated 2000 FTP logs
+
+✅ Total logs generated: 8,000
+
+═══════════════════════════════════════════════════════════════════════
+STEP 2: RUNNING SECURITY ANALYSIS
+═══════════════════════════════════════════════════════════════════════
+
+Running anomaly detection...
+  - HTTP attacks detected: 159
+  - SSH brute force detected: 0
+  - DNS anomalies detected: 58
+  - FTP anomalies detected: 39
+
+✅ Analysis complete. Total alerts: 256
+📊 Severity breakdown: {'high': 158, 'medium': 98}
+💾 Alerts saved to: reports/security_alerts.json
+
+═══════════════════════════════════════════════════════════════════════
+STEP 3: GENERATING DASHBOARD
+═══════════════════════════════════════════════════════════════════════
+
+Dashboard generated: reports/dashboard.html
+✅ Dashboard generated: reports/dashboard.html
+🌐 Open in browser: file:///path/to/reports/dashboard.html
+
+═══════════════════════════════════════════════════════════════════════
+SPLUNK SIEM MVP - SUMMARY
+═══════════════════════════════════════════════════════════════════════
+
+📊 STATISTICS:
+  Total Logs Processed: 8,000
+  Security Alerts: 256
+
+⚠️  SEVERITY BREAKDOWN:
+  HIGH: 158
+  MEDIUM: 98
+
+🎯 TOP THREAT TYPES:
+  Path Traversal: 51
+  XSS: 48
+  SQL Injection: 35
+  DNS Tunneling: 33
+  Unauthorized Access: 32
+  FTP Brute Force: 7
+  DGA Domain: 25
+  Scanner Detected: 25
+
+📁 OUTPUT FILES:
+  Data: data/ (4 arquivos JSON, ~500 KB total)
+  Logs: logs/ (4 arquivos de log, ~180 KB total)
+  Reports: reports/ (dashboard.html + security_alerts.json)
+  Dashboard: reports/dashboard.html
+
+═══════════════════════════════════════════════════════════════════════
+           ✅ PIPELINE EXECUTADO COM SUCESSO!
+═══════════════════════════════════════════════════════════════════════
